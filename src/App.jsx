@@ -15,7 +15,7 @@ export default function App() {
     <Canvas shadows camera={{ position: [0, 0, 2], fov: 40 }}>
         <color 
           attach="background" 
-          args={["#aaefef"]} />
+          args={["#000000"]} />
       <Experience />
     </Canvas>
   
