@@ -5,9 +5,9 @@ import ModifiedShader from './ModifiedShader.jsx'
 
 export default function Experience(){
 
-  const position1 = [2, 0, 0]
-  const position2 = [0, 2, 0]
-  const position3 = [0, -2, 1]
+  const position1 = [-1, -0.5, 1]
+  const position2 = [-1, 1.5, -1]
+  const position3 = [0.5, -0.5, 1.5]
 
   return (
     <>
