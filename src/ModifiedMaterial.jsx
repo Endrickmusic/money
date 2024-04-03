@@ -244,8 +244,8 @@ export default function modMaterial( { meshRef, options } ) {
           `
           #include <color_fragment>
 
-        //   vec3 col = 0.5 + 0.5 * cos(uTime * 0.4 + vUv.xyx + vec3(0,2,4));
-        //   diffuseColor = vec4(col, 1.0);
+          // vec3 col = 0.5 + 0.5 * cos(uTime * 0.4 + vUv.xyx + vec3(0,2,4));
+          // diffuseColor = vec4(col, 1.0);
           `
      )
 

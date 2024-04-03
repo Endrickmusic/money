@@ -1,7 +1,6 @@
 import { OrbitControls, useEnvironment, useTexture } from "@react-three/drei"
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useMemo } from "react"
 import { DoubleSide, PlaneGeometry, Vector2 } from "three"
-import { useControls } from "leva"
 
 import ModifiedShader from './ModifiedMaterial.jsx'
 
@@ -14,14 +13,14 @@ export default function Shader({positions}){
 
     debugObject.Color = '#4242c1'
 
-    const options = useControls("Controls",{
-      BigElevation: { value: 0.35, min: -5, max: 5, step: 0.001 },
-      BigFrequency: { value: 3.4, min: 0, max: 30, step: 0.001 },
-      BigSpeed: { value: .4, min: -5, max: 5, step: 0.001 },
-      NoiseRangeDown: { value: -1.3, min: -1.3, max: 0, step: 0.001 },
-      NoiseRangeUp: { value: 1.3, min: 0., max: 1.3, step: 0.001 },
+    const options = useMemo(()=>({
+      BigElevation: 0.2,
+      BigFrequency: 3.4,
+      BigSpeed: 0.4,
+      NoiseRangeDown: -1.3,
+      NoiseRangeUp: 1.3,
       Wireframe: false
-      })
+    }),[])
 
 
       useEffect((state, delta) => {
@@ -47,7 +46,7 @@ export default function Shader({positions}){
 
   
     // Custom UV coordinates for the plane geometry
-    const planeGeometry = new PlaneGeometry(2, 2, 256, 256)
+    const planeGeometry = new PlaneGeometry(2, 1.16, 256, 256)
     const uvAttribute = planeGeometry.getAttribute('uv')
     const numUvs = uvAttribute.count
   
@@ -58,8 +57,9 @@ export default function Shader({positions}){
         uv.y *= 0.5
         uv.y += 0.5
       } else {
-        uv.y *= 0.2
-        uv.y -= 20
+        uv.y = 1 - uv.y
+        uv.y *= 0.5
+        uv.y -= 0.5
       }
       uvAttribute.setXY(i, uv.x, uv.y)
     }
@@ -76,7 +76,6 @@ export default function Shader({positions}){
       <group>      
         <mesh 
         ref={meshRef}
-        scale={[1, 0.5, 0]}
         rotation={[Math.PI, 0, 0.2 * Math.PI]}
         position={positions}
         >
@@ -89,12 +88,12 @@ export default function Shader({positions}){
               ref={materialRef}
               side={DoubleSide}
               wireframe={false}
-              roughness={0.8}
+              roughness={0.4}
               // roughnessMap={roughnessMap}
-              metalness={0.3}
+              metalness={0.1}
               envMap={envMap}
               normalMap={normalMap}
-              normalScale={0.05}
+              normalScale={0.2}
               map={euro500}
             />
         </mesh>
