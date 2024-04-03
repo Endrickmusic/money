@@ -6,7 +6,7 @@ import { useControls } from "leva"
 import ModifiedShader from './ModifiedMaterial.jsx'
 
 
-export default function Shader(){
+export default function Shader({positions}){
 
     const meshRef = useRef()
     const materialRef = useRef()
@@ -43,7 +43,7 @@ export default function Shader(){
   
   const envMap = useEnvironment({files:'./hdri/aerodynamics_workshop_2k.hdr'})
   const [normalMap, roughnessMap] = useTexture(['./textures/waternormals.jpeg', './textures/SurfaceImperfections003_1K_var1.jpg'])
-  const [ euro50, euro100, euro200,eiro500 ] = useTexture(['./textures/50euro.jpg', './textures/100euro.jpg', './textures/200euro.jpg', './textures/500euro.jpg'])
+  const [ euro50, euro100, euro200, euro500 ] = useTexture(['./textures/50euro.jpg', './textures/100euro.jpg', './textures/200euro.jpg', './textures/500euro.jpg'])
   
   return (
     <>
@@ -58,7 +58,7 @@ export default function Shader(){
         ref={meshRef}
         scale={1}
         rotation={[Math.PI, 0, 0.2 * Math.PI]}
-        position={[-0.2, -0.15, 0]}
+        position={positions}
         >
             <planeGeometry 
             args={[2, 2, 256, 256]} 
