@@ -2,6 +2,7 @@ import { useRef, useState, useMemo, useEffect } from 'react'
 import { Canvas, useThree, useFrame } from "@react-three/fiber"
 import { Environment, Detailed, useTexture, Text } from "@react-three/drei"
 import { MathUtils, PlaneGeometry, Vector2, DoubleSide } from "three"
+import { EffectComposer, DepthOfField, ToneMapping } from '@react-three/postprocessing'
 
 import Logo from '/face-blowing-a-kiss.svg'
 import './index.css'
@@ -195,7 +196,7 @@ function Money({ index, z, speed }) {
   )
 }
 
-export default function App({ speed = 1, count = 80, depth = 120, easing = (x) => Math.sqrt(1 - Math.pow(x - 1, 2)) }) {
+export default function App({ speed = 1, count = 120, depth = 120, easing = (x) => Math.sqrt(1 - Math.pow(x - 1, 2)) }) {
 
 
 
@@ -222,6 +223,15 @@ export default function App({ speed = 1, count = 80, depth = 120, easing = (x) =
       {/* Using cubic easing here to spread out objects a little more interestingly, i wanted a sole big object up front ... */}
         {Array.from({ length: count }, (_, i) => <Money key={i} index={i} z={Math.round(easing(i / count) * depth)} speed={speed} /> /* prettier-ignore */)}
         <Environment preset="sunset" />
+
+            {/* Multisampling (MSAA) is WebGL2 antialeasing, we don't need it (faster)
+          The normal-pass is not required either, saves a bit of performance */}
+      <EffectComposer disableNormalPass multisampling={10}>
+        <DepthOfField target={[0, 0, 70]} focalLength={0.1} bokehScale={10} height={700} />
+        {/* As of three > r154 tonemapping is not applied on rendertargets any longer, it requires a pass */}
+        {/* <ToneMapping /> */}
+      </EffectComposer>
+
     </Canvas>
   
   );
