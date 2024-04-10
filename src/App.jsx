@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo, useEffect } from 'react'
 import { Canvas, useThree, useFrame } from "@react-three/fiber"
-import { Environment, Detailed, useTexture } from "@react-three/drei"
+import { Environment, Detailed, useTexture, Text } from "@react-three/drei"
 import { MathUtils, PlaneGeometry, Vector2, DoubleSide } from "three"
 
 import Logo from '/face-blowing-a-kiss.svg'
@@ -195,7 +195,7 @@ function Money({ index, z, speed }) {
   )
 }
 
-export default function App({ speed = 1, count = 80, depth = 80, easing = (x) => Math.sqrt(1 - Math.pow(x - 1, 2)) }) {
+export default function App({ speed = 1, count = 80, depth = 120, easing = (x) => Math.sqrt(1 - Math.pow(x - 1, 2)) }) {
 
 
 
@@ -209,7 +209,16 @@ export default function App({ speed = 1, count = 80, depth = 80, easing = (x) =>
       {/* <Experience /> */}
 
             {/* As of three > r153 lights work differently in threejs, to get similar results as before you have to add decay={0} */}
-            <spotLight position={[10, 20, 10]} penumbra={1} decay={0} intensity={3} color="orange" />
+      <spotLight position={[10, 20, 10]} penumbra={1} decay={0} intensity={3} color="orange" />
+
+      <Text
+      position={[0, 0, -3]}
+      maxWidth={7}
+      >
+        Ich mache alles für Geld
+      </Text>
+
+
       {/* Using cubic easing here to spread out objects a little more interestingly, i wanted a sole big object up front ... */}
         {Array.from({ length: count }, (_, i) => <Money key={i} index={i} z={Math.round(easing(i / count) * depth)} speed={speed} /> /* prettier-ignore */)}
         <Environment preset="sunset" />
