@@ -1,16 +1,20 @@
-import { useRef, useState } from 'react'
-import Logo from '/face-blowing-a-kiss.svg'
+import { useRef, useState, useMemo, useEffect } from 'react'
 import { Canvas, useThree, useFrame } from "@react-three/fiber"
 import { Environment, Detailed, useTexture } from "@react-three/drei"
 import { MathUtils, PlaneGeometry, Vector2, DoubleSide } from "three"
 
+import Logo from '/face-blowing-a-kiss.svg'
 import './index.css'
 
 import Experience from "./Experience"
+import ModifiedShader from './ModifiedMaterial.jsx'
 
 function Money({ index, z, speed }) {
+  
   const ref = useRef()
   const materialRef = useRef()
+  const meshRef = useRef()
+
   // useThree gives you access to the R3F state model
   const { viewport, camera } = useThree()
   // getCurrentViewport is a helper that calculates the size of the viewport
@@ -44,9 +48,36 @@ function Money({ index, z, speed }) {
   const [normalMap, roughnessMap] = useTexture(['./textures/waternormals.jpeg', './textures/SurfaceImperfections003_1K_var1.jpg'])
   const [ euro50, euro100, euro200, euro500 ] = useTexture(['./textures/50euro.jpg', './textures/100euro.jpg', './textures/200euro.jpg', './textures/500euro.jpg'])
 
-  
+  const options = useMemo(()=>({
+    BigElevation: 0.88,
+    BigFrequency: 0.4,
+    BigSpeed: 0.4,
+    NoiseRangeDown: -3.0,
+    NoiseRangeUp: 3.0,
+    Wireframe: false
+  }),[])
+
+
+    useEffect((state, delta) => {
+
+        if (meshRef.current.material.userData.shader) {
+
+          meshRef.current.material.userData.shader.uniforms.uBigWaveElevation.value = options.BigElevation
+          meshRef.current.material.userData.shader.uniforms.uBigWaveFrequency.value = options.BigFrequency
+          meshRef.current.material.userData.shader.uniforms.uBigWaveSpeed.value = options.BigSpeed
+          meshRef.current.material.userData.shader.uniforms.uNoiseRangeDown.value = options.NoiseRangeDown
+          meshRef.current.material.userData.shader.uniforms.uNoiseRangeUp.value = options.NoiseRangeUp
+          
+          materialRef.current.wireframe = options.Wireframe
+        }
+      },
+      [options]
+
+    )
+
+
     // Custom UV coordinates for the plane geometry
-    const planeHigh = new PlaneGeometry(2, 1.16, 256, 256)
+    const planeHigh = new PlaneGeometry(8, 4.64, 256, 256)
     const uvAttributeHigh = planeHigh.getAttribute('uv')
     const uvsHigh = uvAttributeHigh.count
   
@@ -65,7 +96,7 @@ function Money({ index, z, speed }) {
     }
     uvAttributeHigh.needsUpdate = true
 
-    const planeMed = new PlaneGeometry(2, 1.16, 128, 128)
+    const planeMed = new PlaneGeometry(8, 4.64, 128, 128)
     const uvAttributeMed = planeMed.getAttribute('uv')
     const uvsMed = uvAttributeMed.count
   
@@ -107,7 +138,9 @@ function Money({ index, z, speed }) {
   // we don't need high resolution for objects in the distance. The model contains 3 decimated meshes ...
   return (
     <Detailed ref={ref} distances={[0, 65, 80]}>
-      <mesh>
+      <mesh
+      ref={meshRef}
+      >
       <primitive object={planeHigh} />
         <meshStandardMaterial 
           ref={materialRef}
@@ -154,12 +187,17 @@ function Money({ index, z, speed }) {
           map={euro500}
         />
       </mesh>
-
+      <ModifiedShader 
+        options={options}
+        meshRef={meshRef}
+        /> 
     </Detailed>
   )
 }
 
 export default function App({ speed = 1, count = 80, depth = 80, easing = (x) => Math.sqrt(1 - Math.pow(x - 1, 2)) }) {
+
+
 
  return (
 
