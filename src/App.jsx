@@ -8,6 +8,7 @@ import Logo from '/face-blowing-a-kiss.svg'
 import './index.css'
 
 import Experience from "./Experience"
+import Overlay from "./Overlay.jsx"
 import ModifiedShader from './ModifiedMaterial.jsx'
 
 function Money({ index, z, speed }) {
@@ -202,22 +203,17 @@ export default function App({ speed = 1, count = 120, depth = 120, easing = (x) 
 
  return (
 
-  
+    <>
     <Canvas shadows camera={{ position: [0, 0, 5], fov: 40 }}>
         <color 
           attach="background" 
-          args={["#000000"]} />
+          args={["#444444"]} />
       {/* <Experience /> */}
 
             {/* As of three > r153 lights work differently in threejs, to get similar results as before you have to add decay={0} */}
       <spotLight position={[10, 20, 10]} penumbra={1} decay={0} intensity={3} color="orange" />
 
-      <Text
-      position={[0, 0, -3]}
-      maxWidth={7}
-      >
-        Ich mache alles für Geld
-      </Text>
+
 
 
       {/* Using cubic easing here to spread out objects a little more interestingly, i wanted a sole big object up front ... */}
@@ -233,7 +229,8 @@ export default function App({ speed = 1, count = 120, depth = 120, easing = (x) 
       </EffectComposer>
 
     </Canvas>
-  
+    <Overlay />
+  </>
   );
 }
 
