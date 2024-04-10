@@ -1,6 +1,7 @@
-import { OrbitControls, useEnvironment, useTexture } from "@react-three/drei"
-import { useRef, useEffect, useMemo } from "react"
-import { DoubleSide, PlaneGeometry, Vector2 } from "three"
+import { OrbitControls, useEnvironment, useTexture, Detailed } from "@react-three/drei"
+import { useRef, useEffect, useMemo, useState } from "react"
+import { useThree, useFrame } from "@react-three/fiber"
+import { DoubleSide, PlaneGeometry, Vector2, MathUtils } from "three"
 
 import ModifiedShader from './ModifiedMaterial.jsx'
 
@@ -14,9 +15,9 @@ export default function Shader({positions}){
     debugObject.Color = '#4242c1'
 
     const options = useMemo(()=>({
-      BigElevation: 0.2,
-      BigFrequency: 3.4,
-      BigSpeed: 0.4,
+      BigElevation: 0.18,
+      BigFrequency: 2.1,
+      BigSpeed: 0.2,
       NoiseRangeDown: -1.3,
       NoiseRangeUp: 1.3,
       Wireframe: false
@@ -73,6 +74,9 @@ export default function Shader({positions}){
       position={[0, 2, 0]}
       intensity={3}
       />
+
+      <Money />
+
       <group>      
         <mesh 
         ref={meshRef}
@@ -88,7 +92,7 @@ export default function Shader({positions}){
               ref={materialRef}
               side={DoubleSide}
               wireframe={false}
-              roughness={0.4}
+              roughness={0.15}
               // roughnessMap={roughnessMap}
               metalness={0.1}
               envMap={envMap}
