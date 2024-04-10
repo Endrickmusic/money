@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
 import Logo from '/face-blowing-a-kiss.svg'
 import { Canvas, useThree, useFrame } from "@react-three/fiber"
-import { Environment, Detailed } from "@react-three/drei"
-import { MathUtils } from "three"
+import { Environment, Detailed, useTexture } from "@react-three/drei"
+import { MathUtils, PlaneGeometry, Vector2, DoubleSide } from "three"
 
 import './index.css'
 
@@ -10,6 +10,7 @@ import Experience from "./Experience"
 
 function Money({ index, z, speed }) {
   const ref = useRef()
+  const materialRef = useRef()
   // useThree gives you access to the R3F state model
   const { viewport, camera } = useThree()
   // getCurrentViewport is a helper that calculates the size of the viewport
@@ -40,30 +41,125 @@ function Money({ index, z, speed }) {
     if (data.y > height * (index === 0 ? 4 : 1)) data.y = -(height * (index === 0 ? 4 : 1))
   })
 
+  const [normalMap, roughnessMap] = useTexture(['./textures/waternormals.jpeg', './textures/SurfaceImperfections003_1K_var1.jpg'])
+  const [ euro50, euro100, euro200, euro500 ] = useTexture(['./textures/50euro.jpg', './textures/100euro.jpg', './textures/200euro.jpg', './textures/500euro.jpg'])
+
+  
+    // Custom UV coordinates for the plane geometry
+    const planeHigh = new PlaneGeometry(2, 1.16, 256, 256)
+    const uvAttributeHigh = planeHigh.getAttribute('uv')
+    const uvsHigh = uvAttributeHigh.count
+  
+    for (let i = 0; i < uvsHigh; i++) {
+      const uv = new Vector2(uvAttributeHigh.getX(i), uvAttributeHigh.getY(i))
+      if (uv.y > 0) {
+        uv.y = 1 - uv.y
+        uv.y *= 0.5
+        uv.y += 0.5
+      } else {
+        uv.y = 1 - uv.y
+        uv.y *= 0.5
+        uv.y -= 0.5
+      }
+      uvAttributeHigh.setXY(i, uv.x, uv.y)
+    }
+    uvAttributeHigh.needsUpdate = true
+
+    const planeMed = new PlaneGeometry(2, 1.16, 128, 128)
+    const uvAttributeMed = planeMed.getAttribute('uv')
+    const uvsMed = uvAttributeMed.count
+  
+    for (let i = 0; i < uvsMed; i++) {
+      const uv = new Vector2(uvAttributeMed.getX(i), uvAttributeMed.getY(i))
+      if (uv.y > 0) {
+        uv.y = 1 - uv.y
+        uv.y *= 0.5
+        uv.y += 0.5
+      } else {
+        uv.y = 1 - uv.y
+        uv.y *= 0.5
+        uv.y -= 0.5
+      }
+      uvAttributeMed.setXY(i, uv.x, uv.y)
+    }
+    uvAttributeMed.needsUpdate = true
+
+    const planeLow = new PlaneGeometry(8, 4.64, 64, 64)
+    const uvAttributeLow = planeLow.getAttribute('uv')
+    const uvsLow = uvAttributeLow.count
+  
+    for (let i = 0; i < uvsLow; i++) {
+      const uv = new Vector2(uvAttributeLow.getX(i), uvAttributeLow.getY(i))
+      if (uv.y > 0) {
+        uv.y = 1 - uv.y
+        uv.y *= 0.5
+        uv.y += 0.5
+      } else {
+        uv.y = 1 - uv.y
+        uv.y *= 0.5
+        uv.y -= 0.5
+      }
+      uvAttributeLow.setXY(i, uv.x, uv.y)
+    }
+    uvAttributeLow.needsUpdate = true
+
   // Using drei's detailed is a nice trick to reduce the vertex count because
   // we don't need high resolution for objects in the distance. The model contains 3 decimated meshes ...
   return (
     <Detailed ref={ref} distances={[0, 65, 80]}>
       <mesh>
-        <planeGeometry args={[2, 1.16, 256, 256]}/>
-        <meshStandardMaterial />
+      <primitive object={planeHigh} />
+        <meshStandardMaterial 
+          ref={materialRef}
+          side={DoubleSide}
+          wireframe={false}
+          roughness={0.15}
+          // roughnessMap={roughnessMap}
+          metalness={0.1}
+          // envMap={envMap}
+          normalMap={normalMap}
+          normalScale={0.2}
+          map={euro500}
+        />
       </mesh>
 
       <mesh>
-        <planeGeometry args={[2, 1.16, 128, 128]}/>
-        <meshStandardMaterial />
+      <primitive object={planeMed} />
+        <meshStandardMaterial 
+          // ref={materialRef}
+          side={DoubleSide}
+          wireframe={false}
+          roughness={0.15}
+          // roughnessMap={roughnessMap}
+          metalness={0.1}
+          // envMap={envMap}
+          normalMap={normalMap}
+          normalScale={0.2}
+          map={euro500}
+        />
       </mesh>
 
       <mesh>
-        <planeGeometry args={[2, 1.16, 64, 64]}/>
-        <meshStandardMaterial />
+      <primitive object={planeLow} />
+        <meshStandardMaterial 
+          // ref={materialRef}
+          side={DoubleSide}
+          wireframe={false}
+          roughness={0.15}
+          // roughnessMap={roughnessMap}
+          metalness={0.1}
+          // envMap={envMap}
+          normalMap={normalMap}
+          normalScale={0.2}
+          map={euro500}
+        />
       </mesh>
 
     </Detailed>
   )
 }
 
-export default function App({ speed = 1, count = 100, depth = 80, easing = (x) => Math.sqrt(1 - Math.pow(x - 1, 2)) }) {
+export default function App({ speed = 1, count = 80, depth = 80, easing = (x) => Math.sqrt(1 - Math.pow(x - 1, 2)) }) {
 
  return (
 
