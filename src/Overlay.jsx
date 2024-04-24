@@ -12,7 +12,7 @@ export default function Overlay() {
         <p>In React & Threejs —</p>
       </TopLeft>
       <BottomLeft>
-        A idea by <a href="https://www.endrick.de">Endrick</a>
+        An idea by <a href="https://www.endrick.de">Endrick</a>
       </BottomLeft>
       <BottomRight>
         Inspiration and ideas

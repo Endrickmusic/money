@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo, useEffect } from 'react'
 import { Canvas, useThree, useFrame } from "@react-three/fiber"
-import { Environment, Detailed, useTexture, Text } from "@react-three/drei"
+import { Environment, Detailed, useTexture, OrbitControls } from "@react-three/drei"
 import { MathUtils, PlaneGeometry, Vector2, DoubleSide } from "three"
 import { EffectComposer, DepthOfField, ToneMapping } from '@react-three/postprocessing'
 
@@ -15,7 +15,9 @@ function Money({ index, z, speed }) {
   
   const ref = useRef()
   const materialRef = useRef()
-  const meshRef = useRef()
+  const highRef = useRef()
+  const medRef = useRef()
+  const lowRef = useRef()
 
   // useThree gives you access to the R3F state model
   const { viewport, camera } = useThree()
@@ -51,24 +53,30 @@ function Money({ index, z, speed }) {
   const [ euro50, euro100, euro200, euro500 ] = useTexture(['./textures/50euro.jpg', './textures/100euro.jpg', './textures/200euro.jpg', './textures/500euro.jpg'])
 
   const options = useMemo(()=>({
-    BigElevation: 0.88,
-    BigFrequency: 0.4,
+    BigElevation: 1.88,
+    BigFrequency: 0.2,
     BigSpeed: 0.4,
-    NoiseRangeDown: -3.0,
-    NoiseRangeUp: 3.0,
+    NoiseRangeDown: -5.0,
+    NoiseRangeUp: 5.0,
     Wireframe: false
   }),[])
 
 
     useEffect((state, delta) => {
 
-        if (meshRef.current.material.userData.shader) {
+        if (medRef.current.material.userData.shader) {
 
-          meshRef.current.material.userData.shader.uniforms.uBigWaveElevation.value = options.BigElevation
-          meshRef.current.material.userData.shader.uniforms.uBigWaveFrequency.value = options.BigFrequency
-          meshRef.current.material.userData.shader.uniforms.uBigWaveSpeed.value = options.BigSpeed
-          meshRef.current.material.userData.shader.uniforms.uNoiseRangeDown.value = options.NoiseRangeDown
-          meshRef.current.material.userData.shader.uniforms.uNoiseRangeUp.value = options.NoiseRangeUp
+          medRef.current.material.userData.shader.uniforms.uBigWaveElevation.value = options.BigElevation
+          medRef.current.material.userData.shader.uniforms.uBigWaveFrequency.value = options.BigFrequency
+          medRef.current.material.userData.shader.uniforms.uBigWaveSpeed.value = options.BigSpeed
+          medRef.current.material.userData.shader.uniforms.uNoiseRangeDown.value = options.NoiseRangeDown
+          medRef.current.material.userData.shader.uniforms.uNoiseRangeUp.value = options.NoiseRangeUp
+
+          highRef.current.material.userData.shader.uniforms.uBigWaveElevation.value = options.BigElevation
+          highRef.current.material.userData.shader.uniforms.uBigWaveFrequency.value = options.BigFrequency
+          highRef.current.material.userData.shader.uniforms.uBigWaveSpeed.value = options.BigSpeed
+          highRef.current.material.userData.shader.uniforms.uNoiseRangeDown.value = options.NoiseRangeDown
+          highRef.current.material.userData.shader.uniforms.uNoiseRangeUp.value = options.NoiseRangeUp
           
           materialRef.current.wireframe = options.Wireframe
         }
@@ -141,7 +149,7 @@ function Money({ index, z, speed }) {
   return (
     <Detailed ref={ref} distances={[0, 65, 80]}>
       <mesh
-      ref={meshRef}
+      ref={highRef}
       >
       <primitive object={planeHigh} />
         <meshStandardMaterial 
@@ -158,8 +166,9 @@ function Money({ index, z, speed }) {
         />
       </mesh>
 
-      <mesh>
-      <primitive object={planeMed} />
+      <mesh ref={medRef}>
+      <primitive 
+      object={planeMed} />
         <meshStandardMaterial 
           // ref={materialRef}
           side={DoubleSide}
@@ -173,9 +182,10 @@ function Money({ index, z, speed }) {
           map={euro500}
         />
       </mesh>
-
-      <mesh>
-      <primitive object={planeLow} />
+      
+      <mesh ref={lowRef}>
+      <primitive 
+      object={planeLow} />
         <meshStandardMaterial 
           // ref={materialRef}
           side={DoubleSide}
@@ -191,23 +201,34 @@ function Money({ index, z, speed }) {
       </mesh>
       <ModifiedShader 
         options={options}
-        meshRef={meshRef}
+        meshRef={highRef}
+        /> 
+      <ModifiedShader 
+        options={options}
+        meshRef={medRef}
         /> 
     </Detailed>
   )
 }
 
-export default function App({ speed = 1, count = 120, depth = 120, easing = (x) => Math.sqrt(1 - Math.pow(x - 1, 2)) }) {
+export default function App({ speed = 2, count = 120, depth = 120, easing = (x) => Math.sqrt(1 - Math.pow(x - 1, 2)) }) {
 
 
 
  return (
 
     <>
+    
     <Canvas shadows camera={{ position: [0, 0, 5], fov: 40 }}>
         <color 
           attach="background" 
           args={["#444444"]} />
+
+      <OrbitControls 
+      autoRotate
+      autoRotateSpeed={0.08}
+      />
+
       {/* <Experience /> */}
 
             {/* As of three > r153 lights work differently in threejs, to get similar results as before you have to add decay={0} */}
@@ -215,10 +236,13 @@ export default function App({ speed = 1, count = 120, depth = 120, easing = (x) 
 
 
 
-
       {/* Using cubic easing here to spread out objects a little more interestingly, i wanted a sole big object up front ... */}
         {Array.from({ length: count }, (_, i) => <Money key={i} index={i} z={Math.round(easing(i / count) * depth)} speed={speed} /> /* prettier-ignore */)}
-        <Environment preset="sunset" />
+        <Environment 
+        background
+        preset="city" 
+        blur={0}
+        />
 
             {/* Multisampling (MSAA) is WebGL2 antialeasing, we don't need it (faster)
           The normal-pass is not required either, saves a bit of performance */}
